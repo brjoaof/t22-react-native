@@ -3,10 +3,16 @@ import { Text, View, StyleSheet, TextInput } from "react-native";
 
 export const Input = () => {
   const [texto, setTexto] = useState("Texto Inicial");
+
   return (
     <View style={styles.container}>
       <Text style={styles.texto}>Eu sou um Componente de Input de texto</Text>;
-      <TextInput style={styles.input} value={texto} onChangeText={setTexto} />
+      <TextInput
+        style={styles.input}
+        value={texto}
+        onChangeText={setTexto}
+        placeholder="Aqui vai o meu placeholder"
+      />
     </View>
   );
 };
