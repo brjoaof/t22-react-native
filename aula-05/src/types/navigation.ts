@@ -7,21 +7,13 @@ export type StackParamList = {
   Feed: undefined;
 };
 
-export type HomeNavigationProps = NativeStackNavigationProp<
-  StackParamList,
-  "Home"
->;
+type HomeNavigationProps = NativeStackNavigationProp<StackParamList, "Home">;
 
 export type HomeScreenProps = {
   navigation: HomeNavigationProps;
 };
 
-export type ProfileNavigationProps = NativeStackNavigationProp<
-  StackParamList,
-  "Profile"
->;
-
 export type ProfileScreenProps = {
-  navigation: ProfileNavigationProps;
+  navigation: NativeStackNavigationProp<StackParamList, "Profile">;
   route: RouteProp<StackParamList, "Profile">;
 };
