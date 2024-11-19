@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Button,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useEffect, useState } from "react";
 import { tarefa } from "../../types/types";
@@ -14,11 +15,22 @@ import axios from "axios";
 
 const URL = "https://673bbe8096b8dcd5f3f74e9b.mockapi.io/api/tarefas";
 
+type TarefaEditada = {
+  item: tarefa | undefined;
+  editando: boolean;
+};
+
 export const HomeScreen = () => {
   const [tarefa, setTarefa] = useState("");
+  const [loading, setLoading] = useState(true);
   const [listaTarefas, setListaTarefas] = useState<tarefa[]>([]);
+  const [estaEditando, setEstaEditando] = useState<TarefaEditada>({
+    item: undefined,
+    editando: false,
+  });
 
   const buscarTarefas = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get(URL);
       setListaTarefas(data);
@@ -26,6 +38,7 @@ export const HomeScreen = () => {
     } catch (err) {
       console.log("Erro ao carregar Tarefas. ", err);
     }
+    setLoading(false);
   };
 
   const adicionarTarefa = async () => {
@@ -58,6 +71,53 @@ export const HomeScreen = () => {
     }
   };
 
+  const editarTarefa = (itemTarefa: tarefa) => {
+    setEstaEditando({
+      item: itemTarefa,
+      editando: true,
+    });
+    console.log("EDITAR TAREFA ", itemTarefa.id);
+    setTarefa(itemTarefa.titulo);
+  };
+
+  const cancelar = () => {
+    setEstaEditando({
+      item: undefined,
+      editando: false,
+    });
+    setTarefa("");
+  };
+
+  const salvar = async () => {
+    const tarefaEdita = {
+      titulo: tarefa,
+      descricao: "",
+      status: false,
+    };
+
+    try {
+      const { data } = await axios.put(
+        URL + "/" + estaEditando.item?.id,
+        tarefaEdita
+      );
+      console.log("Tarefa Editada: ", data);
+      const listaEditada = listaTarefas.map((item) => {
+        if (item.id == estaEditando.item?.id) {
+          return data;
+        }
+        return item;
+      });
+      setListaTarefas(listaEditada);
+      setTarefa("");
+      setEstaEditando({
+        item: undefined,
+        editando: false,
+      });
+    } catch (err) {
+      console.log("Erro ao salvar tarefa.", err);
+    }
+  };
+
   useEffect(() => {
     buscarTarefas();
   }, []);
@@ -71,29 +131,44 @@ export const HomeScreen = () => {
           value={tarefa}
           onChangeText={setTarefa}
         />
-        <Button title="Adicionar Tarefa" onPress={adicionarTarefa} />
+        {estaEditando.editando ? (
+          <View style={{ gap: 5 }}>
+            <Button title="cancelar" onPress={cancelar} />
+            <Button title="SALVAR" onPress={salvar} />
+          </View>
+        ) : (
+          <Button title="Adicionar Tarefa" onPress={adicionarTarefa} />
+        )}
       </View>
       {/* Exibição das tarefas */}
-      <FlatList
-        style={styles.lista}
-        data={listaTarefas}
-        renderItem={({ item, index }) => (
-          <View style={styles.itemContainer}>
-            <Text style={styles.itemText} numberOfLines={1}>
-              {item.titulo}
-            </Text>
-            <View style={styles.iconContainer}>
-              <TouchableOpacity>
-                <FontAwesome name="pencil" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deletarTarefa(item.id)}>
-                <FontAwesome name="trash-o" size={24} color="white" />
-              </TouchableOpacity>
+      {loading ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
+        <FlatList
+          style={styles.lista}
+          data={listaTarefas}
+          renderItem={({ item, index }) => (
+            <View style={styles.itemContainer}>
+              <Text style={styles.itemText} numberOfLines={1}>
+                {item.titulo}
+              </Text>
+              <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => editarTarefa(item)}>
+                  <FontAwesome name="pencil" size={24} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => deletarTarefa(item.id)}>
+                  <FontAwesome name="trash-o" size={24} color="white" />
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
     </View>
   );
 };
