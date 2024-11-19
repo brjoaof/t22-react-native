@@ -8,7 +8,6 @@ const { Navigator, Screen } = createNativeStackNavigator<StackParamList>();
 export const Rotas = () => {
   return (
     <Navigator>
-      <Screen name="Requests" component={RequestScreen} />
       <Screen
         name="Home"
         component={HomeScreen}
@@ -17,6 +16,7 @@ export const Rotas = () => {
           //   headerShown: false,
         }}
       />
+      <Screen name="Requests" component={RequestScreen} />
     </Navigator>
   );
 };

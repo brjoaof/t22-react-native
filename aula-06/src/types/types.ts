@@ -1,5 +1,5 @@
 export type tarefa = {
-  id: string;
+  id: number;
   titulo: string;
   descricao: string;
   status: boolean;

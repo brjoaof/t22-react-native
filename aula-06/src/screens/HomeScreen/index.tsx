@@ -7,13 +7,26 @@ import {
   Button,
   TouchableOpacity,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { tarefa } from "../../types/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import axios from "axios";
+
+const URL = "https://673bbe8096b8dcd5f3f74e9b.mockapi.io/api/tarefas";
 
 export const HomeScreen = () => {
   const [tarefa, setTarefa] = useState("");
-  const [listaTarefas, setListaTarefas] = useState<any[]>([]);
+  const [listaTarefas, setListaTarefas] = useState<tarefa[]>([]);
+
+  const buscarTarefas = async () => {
+    try {
+      const { data } = await axios.get(URL);
+      setListaTarefas(data);
+      console.log("Tarefas: ", data);
+    } catch (err) {
+      console.log("Erro ao carregar Tarefas. ", err);
+    }
+  };
 
   const adicionarTarefa = () => {
     if (tarefa == "") return;
@@ -25,6 +38,8 @@ export const HomeScreen = () => {
     // }
     const novaTarefa = {
       titulo: tarefa,
+      descricao: "",
+      status: false,
     };
 
     setListaTarefas([...listaTarefas, novaTarefa]);
@@ -32,17 +47,20 @@ export const HomeScreen = () => {
     setTarefa("");
   };
 
-  const deletarTarefa = (itemIndex: number) => {
-    console.log("Deletar Tarefa. Index: ", itemIndex);
-    const listaFiltrada = listaTarefas.filter(
-      (item, index) => index !== itemIndex
-    );
-    setListaTarefas(listaFiltrada);
+  const deletarTarefa = async (id: number) => {
+    try {
+      const { data } = await axios.delete(URL + "/" + id);
+      console.log("Tarefa Deletada: ", data);
+      const listaFiltrada = listaTarefas.filter((item) => item.id !== data.id);
+      setListaTarefas(listaFiltrada);
+    } catch (err) {
+      console.log("Erro ao deletar tarefa.", err);
+    }
   };
 
-  //Texto para um lado e ícone para o outro
-  //Criem uma função para excluir um item do array
-  //Utilizem o filter no listaTarefas
+  useEffect(() => {
+    buscarTarefas();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -68,7 +86,7 @@ export const HomeScreen = () => {
               <TouchableOpacity>
                 <FontAwesome name="pencil" size={24} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => deletarTarefa(index)}>
+              <TouchableOpacity onPress={() => deletarTarefa(item.id)}>
                 <FontAwesome name="trash-o" size={24} color="white" />
               </TouchableOpacity>
             </View>
