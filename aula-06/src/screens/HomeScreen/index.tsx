@@ -28,23 +28,23 @@ export const HomeScreen = () => {
     }
   };
 
-  const adicionarTarefa = () => {
+  const adicionarTarefa = async () => {
     if (tarefa == "") return;
-    // const novaTarefa = {
-    //   id: "",
-    //   titulo: "",
-    //   descricao: "",
-    //   status: false
-    // }
+
     const novaTarefa = {
       titulo: tarefa,
       descricao: "",
       status: false,
     };
 
-    setListaTarefas([...listaTarefas, novaTarefa]);
-
-    setTarefa("");
+    try {
+      const { data } = await axios.post(URL, novaTarefa);
+      console.log("POST: ", data);
+      setListaTarefas([...listaTarefas, data]);
+      setTarefa("");
+    } catch (err) {
+      console.log("Erro ao carregar Tarefas. ", err);
+    }
   };
 
   const deletarTarefa = async (id: number) => {
