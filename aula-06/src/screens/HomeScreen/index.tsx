@@ -9,16 +9,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { tarefa } from "../../types/types";
+import { tarefa, TarefaEditada } from "../../types/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import axios from "axios";
-
-const URL = "https://673bbe8096b8dcd5f3f74e9b.mockapi.io/api/tarefas";
-
-type TarefaEditada = {
-  item: tarefa | undefined;
-  editando: boolean;
-};
+import {
+  createTarefa,
+  deleteTarefa,
+  getTarefas,
+  updateTarefa,
+} from "../../services/tarefasService";
 
 export const HomeScreen = () => {
   const [tarefa, setTarefa] = useState("");
@@ -32,9 +30,9 @@ export const HomeScreen = () => {
   const buscarTarefas = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get(URL);
-      setListaTarefas(data);
-      console.log("Tarefas: ", data);
+      const tarefasApi = await getTarefas();
+      setListaTarefas(tarefasApi);
+      console.log("Tarefas: ", tarefasApi);
     } catch (err) {
       console.log("Erro ao carregar Tarefas. ", err);
     }
@@ -51,9 +49,9 @@ export const HomeScreen = () => {
     };
 
     try {
-      const { data } = await axios.post(URL, novaTarefa);
-      console.log("POST: ", data);
-      setListaTarefas([...listaTarefas, data]);
+      const novaTarefaAPi = await createTarefa(novaTarefa);
+      console.log("POST: ", novaTarefaAPi);
+      setListaTarefas([...listaTarefas, novaTarefaAPi]);
       setTarefa("");
     } catch (err) {
       console.log("Erro ao carregar Tarefas. ", err);
@@ -62,9 +60,11 @@ export const HomeScreen = () => {
 
   const deletarTarefa = async (id: number) => {
     try {
-      const { data } = await axios.delete(URL + "/" + id);
-      console.log("Tarefa Deletada: ", data);
-      const listaFiltrada = listaTarefas.filter((item) => item.id !== data.id);
+      const tarefaDeletadaApi = await deleteTarefa(id);
+      console.log("Tarefa Deletada: ", tarefaDeletadaApi);
+      const listaFiltrada = listaTarefas.filter(
+        (item) => item.id !== tarefaDeletadaApi.id
+      );
       setListaTarefas(listaFiltrada);
     } catch (err) {
       console.log("Erro ao deletar tarefa.", err);
@@ -89,21 +89,28 @@ export const HomeScreen = () => {
   };
 
   const salvar = async () => {
+    if (!estaEditando.item?.id) {
+      console.error("Erro: O ID da tarefa a ser editada é indefinido.");
+      return;
+    }
+
     const tarefaEdita = {
+      id: estaEditando.item.id,
       titulo: tarefa,
       descricao: "",
       status: false,
     };
 
     try {
-      const { data } = await axios.put(
-        URL + "/" + estaEditando.item?.id,
-        tarefaEdita
-      );
-      console.log("Tarefa Editada: ", data);
+      const tarefaEditada = await updateTarefa(tarefaEdita);
+      // const { data } = await axios.put(
+      //   URL + "/" + estaEditando.item?.id,
+      //   tarefaEdita
+      // );
+      console.log("Tarefa Editada: ", tarefaEditada);
       const listaEditada = listaTarefas.map((item) => {
         if (item.id == estaEditando.item?.id) {
-          return data;
+          return tarefaEditada;
         }
         return item;
       });

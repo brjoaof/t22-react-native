@@ -4,3 +4,8 @@ export type tarefa = {
   descricao: string;
   status: boolean;
 };
+
+export type TarefaEditada = {
+  item: tarefa | undefined;
+  editando: boolean;
+};
