@@ -1,22 +1,9 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { HomeScreen } from "../screens/HomeScreen";
-import { StackParamList } from "../types/navigation";
-import RequestScreen from "../screens/RequestScreen";
-
-const { Navigator, Screen } = createNativeStackNavigator<StackParamList>();
+import { useContext } from "react";
+import { RotasPrivadas } from "./RotasPrivadas";
+import { RotasPublicas } from "./RotasPublicas";
+import { AuthContext } from "../contexts/AuthContext";
 
 export const Rotas = () => {
-  return (
-    <Navigator>
-      <Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          title: "Gerenciador de Tarefas",
-          //   headerShown: false,
-        }}
-      />
-      <Screen name="Requests" component={RequestScreen} />
-    </Navigator>
-  );
+  const { estaLogado } = useContext(AuthContext);
+  return <>{estaLogado ? <RotasPrivadas /> : <RotasPublicas />}</>;
 };
