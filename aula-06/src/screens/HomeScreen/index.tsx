@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { tarefa, TarefaEditada } from "../../types/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
@@ -17,6 +17,7 @@ import {
   getTarefas,
   updateTarefa,
 } from "../../services/tarefasService";
+import { TestContext } from "../../contexts/TesteContext";
 
 export const HomeScreen = () => {
   const [tarefa, setTarefa] = useState("");
@@ -26,6 +27,10 @@ export const HomeScreen = () => {
     item: undefined,
     editando: false,
   });
+
+  const { name } = useContext(TestContext);
+
+  console.log(name);
 
   const buscarTarefas = async () => {
     setLoading(true);
