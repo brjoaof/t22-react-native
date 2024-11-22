@@ -1,3 +1,4 @@
+import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { Rotas } from "./src/routes/rotas";
 import TestProvider from "./src/contexts/TesteContext";
